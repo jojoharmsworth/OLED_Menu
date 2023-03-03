@@ -1,0 +1,61 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.14.0.0
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: JOJO Harmsworth, 666, LIC=BUURY-IFMWA-Y8ZFK-ZZ58N-YWSZ1-6H2PD
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Standard  Version: 5.14.0.0
+Toolchain Path:  E:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.05 update 1 (build 106)
+Assembler:       Armasm.exe V5.05 update 1 (build 106)
+Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
+Library Manager: ArmAr.exe V5.05 update 1 (build 106)
+Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
+CPU DLL:         SARMCM3.DLL V5.14.0.0
+Dialog DLL:      DCM.DLL V1.13.1.0
+Target DLL:      CMSIS_AGDI.dll V1.21.0.0
+Dialog DLL:      TCM.DLL V1.14.4.0
+ 
+<h2>Project:</h2>
+G:\Program\Stm32\UI\OLED_u8g2\MDK-ARM\OLED_Template.uvprojx
+Project File Date:  03/03/2023
+
+<h2>Output:</h2>
+Build target 'OLED_Template'
+compiling main.c...
+../Core/Src/main.c(67): warning:  #223-D: function "Delay_us" declared implicitly
+      Delay_us(10);
+../Core/Src/main.c(75): warning:  #187-D: use of "=" where "==" may have been intended
+      if (arg_int = 0)
+../Core/Src/main.c(77): warning:  #187-D: use of "=" where "==" may have been intended
+      else if (arg_int = 1)
+../Core/Src/main.c: 3 warnings, 0 errors
+linking...
+Program Size: Code=8028 RO-data=18928 RW-data=32 ZI-data=1272  
+FromELF: creating hex file...
+"OLED_Template\OLED_Template.axf" - 0 Error(s), 3 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.2.0.pack
+                ARM::CMSIS:CORE:3.40.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 3.40.0
+
+<h2>Collection of Component include folders:</h2>
+  G:\Program\Stm32\UI\OLED_u8g2\MDK-ARM\RTE
+  E:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
+  E:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:3.40.0
+      Source file:   CMSIS\UserCodeTemplates\ARM\ITM_Retarget.c
+</pre>
+</body>
+</html>

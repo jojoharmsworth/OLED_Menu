@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "string": "c",
+        "oled.h": "c",
+        "oled_i2c.h": "c",
+        "u8g2.h": "c",
+        "systick.h": "c"
+    }
+}
