@@ -1,12 +1,23 @@
 /*
  * @version: V1.0.0
  * @Author: harmsworth
- * @Date: 2023-03-01 09:40:25
+ * @Date: 2023-03-27 13:07:17
  * @LastEditors: harmsworth
- * @LastEditTime: 2023-03-03 11:09:08
+ * @LastEditTime: 2023-03-27 14:49:57
  * @company: null
  * @Mailbox: jojoharmsworth@gmail.com
- * @FilePath: \MDK-ARMg:\Program\Stm32\UI\OLED_u8g2\Core\Src\main.c
+ * @FilePath: \MDK-ARMg:\Program\Stm32\Projects\OLED_Menu_u8g2\Core\Src\main.c
+ * @Descripttion:
+ */
+/*
+ * @version: V1.0.0
+ * @Author: harmsworth
+ * @Date: 2023-03-20 09:51:44
+ * @LastEditors: harmsworth
+ * @LastEditTime: 2023-03-27 13:44:37
+ * @company: null
+ * @Mailbox: jojoharmsworth@gmail.com
+ * @FilePath: \MDK-ARMg:\Program\Stm32\Projects\OLED_Menu_u8g2\Core\Src\main.c
  * @Descripttion:
  */
 /* USER CODE BEGIN Header */
@@ -29,7 +40,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
+#include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -37,6 +51,13 @@
 #include "oled.h"
 #include "u8g2.h"
 #include "u8x8.h"
+#include "key.h"
+#include "ui.h"
+#include "directory.h"
+#include "bh1750.h"
+#include "dht11.h"
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,112 +77,27 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
+uint8_t temp = 22;
+uint8_t humi = 22;
+u8g2_t u8g2;
+
+struct
 {
-  switch (msg)
-  {
-  case U8X8_MSG_DELAY_100NANO: // delay arg_int * 100 nano seconds
-    __NOP();
-    break;
-  case U8X8_MSG_DELAY_10MICRO: // delay arg_int * 10 micro seconds
-    Delay_us(10);
-    break;
-  case U8X8_MSG_DELAY_MILLI: // delay arg_int * 1 milli second
-    HAL_Delay(1);
-    break;
-  case U8X8_MSG_DELAY_I2C:      // arg_int is the I2C speed in 100KHz, e.g. 4 = 400 KHz
-    break;                      // arg_int=1: delay by 5us, arg_int = 4: delay by 1.25us
-  case U8X8_MSG_GPIO_I2C_CLOCK: // arg_int=0: Output low at I2C clock pin
-    if (arg_int = 0)
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-    else if (arg_int = 1)
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-    break;                     // arg_int=1: Input dir with pullup high for I2C clock pin
-  case U8X8_MSG_GPIO_I2C_DATA: // arg_int=0: Output low at I2C data pin
-    if (arg_int == 1)          // arg_int=1: Input dir with pullup high for I2C data pin
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
-    else if (arg_int == 0)
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
-    break;
-  case U8X8_MSG_GPIO_MENU_SELECT:
-    u8x8_SetGPIOResult(u8x8, /* get menu select pin state */ 0);
-    break;
-  case U8X8_MSG_GPIO_MENU_NEXT:
-    u8x8_SetGPIOResult(u8x8, /* get menu next pin state */ 0);
-    break;
-  case U8X8_MSG_GPIO_MENU_PREV:
-    u8x8_SetGPIOResult(u8x8, /* get menu prev pin state */ 0);
-    break;
-  case U8X8_MSG_GPIO_MENU_HOME:
-    u8x8_SetGPIOResult(u8x8, /* get menu home pin state */ 0);
-    break;
-  default:
-    u8x8_SetGPIOResult(u8x8, 1); // default return value
-    break;
-  }
-  return 1;
-}
-
-uint8_t u8x8_byte_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
-{
-  static uint8_t buffer[32]; /* u8g2/u8x8 will never send more than 32 bytes between START_TRANSFER and END_TRANSFER */
-  static uint8_t buf_idx;
-  uint8_t *data;
-
-  switch (msg)
-  {
-  case U8X8_MSG_BYTE_SEND:
-    data = (uint8_t *)arg_ptr;
-    while (arg_int > 0)
-    {
-      buffer[buf_idx++] = *data;
-      data++;
-      arg_int--;
-    }
-    break;
-  case U8X8_MSG_BYTE_INIT:
-    /* add your custom code to init i2c subsystem */
-    break;
-  case U8X8_MSG_BYTE_START_TRANSFER:
-    buf_idx = 0;
-    break;
-  case U8X8_MSG_BYTE_END_TRANSFER:
-    HAL_I2C_Master_Transmit(&hi2c1, u8x8_GetI2CAddress(u8x8), buffer, buf_idx, 1000);
-    break;
-  default:
-    return 0;
-  }
-  return 1;
-}
-
-void draw(u8g2_t *u8g2)
-{
-  u8g2_SetFontMode(u8g2, 1); // Transparent
-  u8g2_SetFontDirection(u8g2, 0);
-  u8g2_SetFont(u8g2, u8g2_font_inb24_mf);
-  u8g2_DrawStr(u8g2, 0, 20, "U");
-
-  u8g2_SetFontDirection(u8g2, 1);
-  u8g2_SetFont(u8g2, u8g2_font_inb24_mf);
-  u8g2_DrawStr(u8g2, 21, 8, "8");
-
-  u8g2_SetFontDirection(u8g2, 0);
-  u8g2_SetFont(u8g2, u8g2_font_wqy12_t_chinese1);
-  u8g2_DrawStr(u8g2, 51, 30, "g");
-  u8g2_DrawUTF8(u8g2, 10, 50, "浣犲ソ,world");
-
-  u8g2_DrawHLine(u8g2, 2, 35, 47);
-  u8g2_DrawHLine(u8g2, 3, 36, 47);
-  u8g2_DrawVLine(u8g2, 45, 32, 12);
-  u8g2_DrawVLine(u8g2, 46, 33, 12);
-}
-
+  menu_t *current_pointer; // 当前链表位置
+  int ctrl;
+  char input;
+} sys_info;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void key0_callbackFunction(struct my_key *key);
+void key1_callbackFunction(struct my_key *key);
+menu_t *menuInit(void);
+void menuPrint(void);
+void infoGroupFunction(void);
+void nullFunction(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -176,6 +112,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  static struct my_key key0 = {0}, key1 = {0};
 
   /* USER CODE END 1 */
 
@@ -197,21 +134,26 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C1_Init();
+  MX_USART1_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  // uint8_t A[] = "hello world !!";
-  // OLED_Init();
-  // OLED_ShowString(0, 0, "ALIENTEK", 24);
-  // OLED_ShowString(0,24, "0.96' OLED TEST",16);
-  // OLED_ShowString(0,40,"ATOM 2019/9/17",12);
-  // OLED_ShowString(0,52,"ASCII:",12);
-  // OLED_ShowString(64,52,"CODE:",12);
-  // OLED_Refresh_Gram();
-  u8g2_t u8g2;                                                                                // a structure which will contain all the data for one display
+
+  OLED_Init();
+  DHT11_Init();
+  bh1750_config();
+  // a structure which will contain all the data for one display
   u8g2_Setup_ssd1306_i2c_128x64_noname_1(&u8g2, U8G2_R0, u8x8_byte_i2c, u8x8_gpio_and_delay); // init u8g2 structure
   u8g2_InitDisplay(&u8g2);                                                                    // send init sequence to the display, display is in sleep mode after this,
   u8g2_SetPowerSave(&u8g2, 0);
 
+  key0.cb = key0_callbackFunction;
+  key1.cb = key1_callbackFunction;
+  my_button_register(&key0);
+  my_button_register(&key1);
+
+  menu_t *menuHeadNode = menuInit();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -219,11 +161,24 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
+    // int i = 10;
+    // u8g2_FirstPage(&u8g2);
+    // do
+    // {
+    // dataDisplay(&u8g2);
+
+    // } while (u8g2_NextPage(&u8g2));
+    // keyScan();
+
+    key_scan_v2();
+    // menuPrint();
     u8g2_FirstPage(&u8g2);
     do
     {
-      draw(&u8g2);
+
+      menu_oled(sys_info.current_pointer);
     } while (u8g2_NextPage(&u8g2));
   }
   /* USER CODE END 3 */
@@ -268,7 +223,134 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void key0_callbackFunction(struct my_key *key)
+{
+  switch (key->event)
+  {
+  case CLICK: // 下
+    usart_print(&huart1, "key0单击\r\n");
+    if (sys_info.current_pointer->sibling_next != NULL)
+      sys_info.current_pointer = sys_info.current_pointer->sibling_next;
+    break;
+  case DOUBLE_CLICK:
+    usart_print(&huart1, "key0双击\r\n");
+    break;
+  case LONG_CLICK:
+    usart_print(&huart1, "key0长按\r\n");
+    break;
+  default:
+    break;
+  }
+}
 
+void key1_callbackFunction(struct my_key *key)
+{
+  switch (key->event)
+  {
+  case CLICK: // 上
+    usart_print(&huart1, "key1单击\r\n");
+    if (sys_info.current_pointer->sibling_last != NULL)
+      sys_info.current_pointer = sys_info.current_pointer->sibling_last;
+    break;
+  case DOUBLE_CLICK: // 确认，进入 或 触发函数
+    usart_print(&huart1, "key1双击\r\n");
+    if (sys_info.current_pointer->child != NULL)
+      sys_info.current_pointer = sys_info.current_pointer->child;
+    else
+      sys_info.current_pointer->itemFunction();
+    break;
+  case LONG_CLICK: // 取消，返回
+    usart_print(&huart1, "key1长按\r\n");
+    if (sys_info.current_pointer->parent != NULL)
+      sys_info.current_pointer = sys_info.current_pointer->parent;
+    break;
+  default:
+    break;
+  }
+}
+
+menu_t *menuInit(void)
+{
+  menu_t *headNode = NULL;
+  headNode = add_sibling_item(headNode, nullFunction, "添加头节点");
+
+  menu_t *first = add_child_item(headNode, "item1", nullFunction, 0);
+  add_sibling_item(first, nullFunction, "item2");
+  add_sibling_item(first, nullFunction, "item3");
+
+  menu_t *second = add_child_item(first, "info", infoGroupFunction, 0);
+  add_sibling_item(second, nullFunction, "system");
+  add_sibling_item(second, nullFunction, "justice");
+
+  sys_info.current_pointer = first;
+  return headNode;
+}
+
+void menuPrint(void)
+{
+  menu_t *tPointer = sys_info.current_pointer;
+  while (tPointer->sibling_last != NULL)
+  {
+    tPointer = tPointer->sibling_last;
+  }
+
+  usart_print(&huart1, "\r\n*********************************************************\r\n");
+  usart_print(&huart1, "\r\n");
+  usart_print(&huart1, "\r\n");
+  do
+  {
+    if (sys_info.current_pointer == tPointer)
+      usart_print(&huart1, ">\t%s\r\n", tPointer->item_name);
+    else
+      usart_print(&huart1, "\t%s\r\n", tPointer->item_name);
+    tPointer = tPointer->sibling_next;
+
+  } while (tPointer != NULL);
+  usart_print(&huart1, "\r\n");
+  usart_print(&huart1, "\r\n*********************************************************\r\n");
+}
+
+void menuOLED(void)
+{
+  menu_t *p = sys_info.current_pointer;
+  while (p->sibling_last != NULL)
+  {
+    p = p->sibling_last;
+  }
+}
+
+void infoGroupFunction(void)
+{
+  DHT11_Data_TypeDef DHT11Data;
+  uint16_t light = 0;
+
+  while (HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) == SET)
+  {
+    if (DHT11_Read_TempAndHumidity(&DHT11Data) != SUCCESS)
+      usart_print(&huart1, "failed!");
+    light = Get_BH1750_Value();
+
+    u8g2_FirstPage(&u8g2);
+    do
+    {
+      char strBuff[128];
+      u8g2_ClearBuffer(&u8g2);
+      u8g2_SetFont(&u8g2, u8g2_font_6x10_tf);
+      sprintf(strBuff, "tempture: %d.%d °C", DHT11Data.temp_int, DHT11Data.temp_deci);
+      u8g2_DrawUTF8(&u8g2, 1, 15, strBuff);
+      sprintf(strBuff, "humidity: %d.%d %%RH", DHT11Data.humi_int, DHT11Data.humi_deci);
+      u8g2_DrawUTF8(&u8g2, 1, 25, strBuff);
+      sprintf(strBuff, "illumination: %d lx", light);
+      u8g2_DrawUTF8(&u8g2, 1, 35, strBuff);
+      u8g2_SendBuffer(&u8g2);
+    } while (u8g2_NextPage(&u8g2));
+  }
+}
+
+void nullFunction(void)
+{
+  return;
+}
 /* USER CODE END 4 */
 
 /**

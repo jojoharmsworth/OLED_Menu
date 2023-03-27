@@ -1,3 +1,14 @@
+/*
+ * @version: V1.0.0
+ * @Author: harmsworth
+ * @Date: 2023-03-27 13:07:17
+ * @LastEditors: harmsworth
+ * @LastEditTime: 2023-03-27 13:20:45
+ * @company: null
+ * @Mailbox: jojoharmsworth@gmail.com
+ * @FilePath: \MDK-ARMg:\Program\Stm32\Projects\OLED_Menu_u8g2\Devices\dht11.c
+ * @Descripttion: 
+ */
 #include "dht11.h"
 
 /* 可以在下面的宏定义中把后面的延时函数替换换SysTick的延时函数，就是想用那个就换成那个的 */

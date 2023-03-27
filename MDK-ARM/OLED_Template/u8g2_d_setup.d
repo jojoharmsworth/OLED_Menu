@@ -5,7 +5,7 @@ oled_template\u8g2_d_setup.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 oled_template\u8g2_d_setup.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 oled_template\u8g2_d_setup.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 oled_template\u8g2_d_setup.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-oled_template\u8g2_d_setup.o: ..\Devices\systick.h
+oled_template\u8g2_d_setup.o: ../Devices/systick.h
 oled_template\u8g2_d_setup.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 oled_template\u8g2_d_setup.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h
 oled_template\u8g2_d_setup.o: ../Drivers/CMSIS/Include/core_cm3.h
@@ -30,3 +30,6 @@ oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_
 oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
+oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
+oled_template\u8g2_d_setup.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h

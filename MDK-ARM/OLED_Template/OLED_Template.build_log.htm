@@ -21,23 +21,25 @@ Target DLL:      CMSIS_AGDI.dll V1.21.0.0
 Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
-G:\Program\Stm32\UI\OLED_u8g2\MDK-ARM\OLED_Template.uvprojx
-Project File Date:  03/03/2023
+G:\Program\Stm32\Projects\OLED_Menu_u8g2\MDK-ARM\OLED_u8g2.uvprojx
+Project File Date:  03/27/2023
 
 <h2>Output:</h2>
-Build target 'OLED_Template'
+Build target 'OLED_u8g2'
 compiling main.c...
-../Core/Src/main.c(67): warning:  #223-D: function "Delay_us" declared implicitly
-      Delay_us(10);
-../Core/Src/main.c(75): warning:  #187-D: use of "=" where "==" may have been intended
-      if (arg_int = 0)
-../Core/Src/main.c(77): warning:  #187-D: use of "=" where "==" may have been intended
-      else if (arg_int = 1)
-../Core/Src/main.c: 3 warnings, 0 errors
+../UI/directory.h(25): warning:  #1-D: last line of file ends without a newline
+  #endif
+../UI/ui.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Core/Src/main.c(151): warning:  #513-D: a value of type "void (*)(struct my_key *)" cannot be assigned to an entity of type "callbakFunction"
+    key0.cb = key0_callbackFunction;
+../Core/Src/main.c(152): warning:  #513-D: a value of type "void (*)(struct my_key *)" cannot be assigned to an entity of type "callbakFunction"
+    key1.cb = key1_callbackFunction;
+../Core/Src/main.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=8028 RO-data=18928 RW-data=32 ZI-data=1272  
+Program Size: Code=26524 RO-data=5828 RW-data=40 ZI-data=3408  
 FromELF: creating hex file...
-"OLED_Template\OLED_Template.axf" - 0 Error(s), 3 Warning(s).
+"OLED_Template\OLED_Template.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -48,7 +50,7 @@ Package Vendor: ARM
    * Component: CORE Version: 3.40.0
 
 <h2>Collection of Component include folders:</h2>
-  G:\Program\Stm32\UI\OLED_u8g2\MDK-ARM\RTE
+  G:\Program\Stm32\Projects\OLED_Menu_u8g2\MDK-ARM\RTE
   E:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
   E:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0
 

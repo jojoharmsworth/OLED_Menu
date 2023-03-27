@@ -2,6 +2,7 @@
 #define __OLED_H
 #include "stm32f1xx.h"
 
+// #define I2C1_DMA
 #define OLED_CMD  	0		//ะดรüม๎
 #define OLED_DATA 	1		//ะดสýพÝ
 

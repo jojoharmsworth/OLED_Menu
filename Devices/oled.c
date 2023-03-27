@@ -1,3 +1,14 @@
+/*
+ * @version: V1.0.0
+ * @Author: harmsworth
+ * @Date: 2023-03-02 16:40:31
+ * @LastEditors: harmsworth
+ * @LastEditTime: 2023-03-06 10:06:10
+ * @company: null
+ * @Mailbox: jojoharmsworth@gmail.com
+ * @FilePath: \MDK-ARMg:\Program\Stm32\UI\OLED_u8g2\Devices\oled.c
+ * @Descripttion:
+ */
 #include "oled.h"
 #include "stdlib.h"
 #include "oledfont.h"
@@ -14,6 +25,8 @@
 //[6]0 1 2 3 ... 127
 //[7]0 1 2 3 ... 127
 uint8_t OLED_GRAM[128][8];
+
+#ifndef I2C1_DMA
 
 // 更新显存到LCD
 void OLED_Refresh_Gram(void)
@@ -43,6 +56,37 @@ void OLED_WR_Byte(uint8_t dat, uint8_t cmd)
 		HAL_I2C_Mem_Write(&hi2c1, 0x78, 0x00, I2C_MEMADD_SIZE_8BIT, &dat, 1, 0x100);
 	}
 }
+
+#else
+void OLED_Refresh_Gram(void)
+{
+	uint8_t i, n;
+	for (i = 0; i < 8; i++)
+	{
+		OLED_WR_Byte(0xb0 + i, OLED_CMD); // 设置页地址（0~7）
+		OLED_WR_Byte(0x00, OLED_CMD);	  // 设置显示位置—列低地址
+		OLED_WR_Byte(0x10, OLED_CMD);	  // 设置显示位置—列高地址
+		for (n = 0; n < 128; n++)
+			OLED_WR_Byte(OLED_GRAM[n][i], OLED_DATA);
+	}
+	// HAL_I2C_Master_Transmit_DMA(&hi2c1, 0x78, OLED_GRAM[0], 128 * 8);
+}
+
+void OLED_WR_Byte(uint8_t dat, uint8_t cmd)
+{
+	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
+		;
+	if (cmd)
+	{
+		HAL_I2C_Mem_Write_DMA(&hi2c1, 0x78, 0x40, I2C_MEMADD_SIZE_8BIT, &dat, 1);
+	}
+	else
+	{
+		HAL_I2C_Mem_Write_DMA(&hi2c1, 0x78, 0x00, I2C_MEMADD_SIZE_8BIT, &dat, 1);
+	}
+}
+
+#endif
 
 // 开启OLED显示
 void OLED_Display_On(void)
@@ -208,7 +252,7 @@ void OLED_Init(void)
 
 	OLED_WR_Byte(0xAE, OLED_CMD); // 关闭显示
 	OLED_WR_Byte(0xD5, OLED_CMD); // 设置时钟分频因子,震荡频率
-	OLED_WR_Byte(0x80, OLED_CMD);	  //[3:0],分频因子;[7:4],震荡频率
+	OLED_WR_Byte(0x80, OLED_CMD); //[3:0],分频因子;[7:4],震荡频率
 	OLED_WR_Byte(0xA8, OLED_CMD); // 设置驱动路数
 	OLED_WR_Byte(0X3F, OLED_CMD); // 默认0X3F(1/64)
 	OLED_WR_Byte(0xD3, OLED_CMD); // 设置显示偏移
@@ -231,9 +275,9 @@ void OLED_Init(void)
 	OLED_WR_Byte(0xA4, OLED_CMD); // 全局显示开启;bit0:1,开启;0,关闭;(白屏/黑屏)
 	OLED_WR_Byte(0xA6, OLED_CMD); // 设置显示方式;bit0:1,反相显示;0,正常显示
 	OLED_WR_Byte(0xAF, OLED_CMD); // 开启显示
-	
+
 	// OLED_WR_Byte(0xAE, OLED_CMD); //display off
-	// OLED_WR_Byte(0x20, OLED_CMD);	//Set Memory Addressing Mode	
+	// OLED_WR_Byte(0x20, OLED_CMD);	//Set Memory Addressing Mode
 	// OLED_WR_Byte(0x10, OLED_CMD);	//00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
 	// OLED_WR_Byte(0xb0, OLED_CMD);	//Set Page Start Address for Page Addressing Mode,0-7
 	// OLED_WR_Byte(0xc8, OLED_CMD);	//Set COM Output Scan Direction
